@@ -1,5 +1,13 @@
-@(message: String)
+@(form: Form[UrlData])(implicit f: Flash, m: Messages)
 
-@main("Welcome to Play") {
-    The message from playframework.com is "@message"
+@main("Site") {
+
+    @flash()
+
+    @helper.form(action = routes.HomeController.submit()) {
+        @helper.inputText(form("url"))
+
+        <input type="submit" value="submit"/>
+    }
+
 }

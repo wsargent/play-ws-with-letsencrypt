@@ -1,0 +1,9 @@
+@()(implicit flash: Flash)
+
+@flash.get("info").map { info =>
+    <h2>@info</h2>
+}
+
+@flash.get("error").map { error =>
+    <h2>@error</h2>
+}

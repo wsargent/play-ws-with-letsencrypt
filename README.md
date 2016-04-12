@@ -1,42 +1,14 @@
 # Play WS with LetsEncrypt Certificate
 
-This is an example Play Application that talks to https://playframework.com using the LetsEncrypt certificate.
+This is an example Play Application that talks to https://helloworld.letsencrypt.org using the LetsEncrypt certificate.
 
 ## Running
 
-Type "activator run" at the prompt.
+Download and install "sbt" or "activator".  Activator is basically sbt + templates, so don't worry about it if you don't have it.
 
-## Configuration
+Type "activator run" or "sbt run" at the prompt.
 
-```
-play.ws {
-  ## WS SSL
-  # https://www.playframework.com/documentation/latest/WsSSL
-  # ~~~~~
-  ssl {
-    # Configuring HTTPS with Play WS does not require programming.  You can
-    # set up both trustManager and keyManager for mutual authentication, and
-    # turn on JSSE debugging in development with a reload.
-    # debug.handshake = true
-    trustManager = {
-      stores = [
-        # From https://www.sslshopper.com/certificate-decoder.html
-        #
-        # Common Name: Let's Encrypt Authority X3
-        # Organization: Let's Encrypt
-        # Country: US
-        # Valid From: March 17, 2016
-        # Valid To: March 17, 2021
-        # Issuer: DST Root CA X3, Digital Signature Trust Co.
-        # Serial Number: 0a0141420000015385736a0b85eca708
-        #
-        { type = "PEM", path = "./conf/letsencrypt-root-ca-x3.pem" }
-      ]
-    }
-  }
-}
-
-```
+Then go to http://localhost:9000 and type in the URL that you want to check the certificates against.
 
 ## Importing
 

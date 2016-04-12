@@ -20,12 +20,10 @@
     <appender-ref ref="FILE" />
   </appender>
 
-  <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
-    <appender-ref ref="STDOUT" />
-  </appender>
-
   <logger name="play" level="INFO" />
-  <logger name="application" level="DEBUG" />
+
+  <logger name="org.asynchttpclient" level="ERROR" />
+  <logger name="play.api.libs.ws.ssl" value="DEBUG"/>
 
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourselves -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />
@@ -35,7 +33,7 @@
 
   <root level="WARN">
     <appender-ref ref="ASYNCFILE" />
-    <appender-ref ref="ASYNCSTDOUT" />
+    <appender-ref ref="STDOUT" />
   </root>
 
 </configuration>
