@@ -12,20 +12,20 @@ Then go to http://localhost:9000 and type in the URL that you want to check the 
 
 ## Importing
 
-If you need to import the letsencrypt certificate to your "global" Java trust store, here's the command to do that:
+If you need to import the letsencrypt certificate to your "global" Java trust store, here's the command to do that (you may need sudo access):
 
 ```
 # Create a JKS keystore that trusts the example CA, with the default password.
-keytool -import -v \
-  -alias letsencrypt-root-ca-x3 \
-  -file ./conf/letsencrypt-root-ca-x3.pem \
+sudo keytool -import -v \
+  -alias dst-x3-root \
+  -file ./conf/dst-x3-root.pem \
   -keystore $JAVA_HOME/jre/lib/security/cacerts \
   -storepass changeit
 
 # List out the details of the store password.
 keytool -list -v \
   -keystore $JAVA_HOME/jre/lib/security/cacerts \
-  -storepass changeit
+  -storepass changeit | grep -i "dst"
 ```
 
 Please see the Play WS documentation for more details:

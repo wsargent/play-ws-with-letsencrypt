@@ -23,12 +23,9 @@ class CertificateDownloader(ws: WSClient, config:Configuration)(implicit wsExecu
 
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
-  private val certMap = Map(
-      "https://bugzilla.mozilla.org/attachment.cgi?id=276893" -> toPath("./conf/dst-x3-root.pem")
-    //"https://letsencrypt.org/certs/isrgrootx1.pem" -> toPath("./conf/isrgrootx1.pem"),
-    //"https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem" -> toPath("./conf/lets-encrypt-x3-cross-signed.pem"),
-    //"https://letsencrypt.org/certs/lets-encrypt-x4-cross-signed.pem" -> toPath("./conf/lets-encrypt-x4-cross-signed.pem")
-  )
+  private val letsEncryptRootUrl = config.getString("letsencrypt.root.url").get
+  private val letsEncryptRootPath = toPath(config.getString("letsencrypt.root.path").get)
+  private val certMap = Map(letsEncryptRootUrl -> letsEncryptRootPath)
 
   def toPath(s:String) = {
     FileSystems.getDefault().getPath(s)
