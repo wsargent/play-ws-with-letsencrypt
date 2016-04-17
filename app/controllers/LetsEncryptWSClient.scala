@@ -28,12 +28,6 @@ class LetsEncryptWSClient(lifecycle: ApplicationLifecycle,
       |  ssl {
       |    trustManager = {
       |      stores = [
-      |        # Is the certificate using something else?
-      |        { path: ${java.home}/lib/security/cacerts, password = "changeit" }
-      |
-      |        # Does not help with https://helloworld.letsencrypt.com
-      |        { type = "PEM", path = "./conf/isrgrootx1.pem" }
-      |
       |        # Seems to be required for https://helloworld.letsencrypt.com
       |        { type = "PEM", path = "./conf/dst-x3-root.pem" }
       |      ]
