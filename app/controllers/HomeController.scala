@@ -41,7 +41,7 @@ class HomeController @Inject()(downloader: CertificateDownloader,
 
   def index = Action.async { implicit request =>
     // Download the LC certificates if necessary
-    val downloadFuture = if (downloader.certificatesExist()) {
+    val downloadFuture = if (downloader.allCertificatesExist()) {
       Future.successful(())
     } else {
       downloader.downloadCertificates()
