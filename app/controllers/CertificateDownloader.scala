@@ -1,7 +1,9 @@
 package controllers
 
+import java.net.URL
 import java.nio.file.{FileSystems, Files, Path, StandardOpenOption}
 
+import com.typesafe.config.ConfigObject
 import contexts.WSExecutionContext
 import play.api.Configuration
 import play.api.libs.ws.WSClient
@@ -23,16 +25,22 @@ class CertificateDownloader(ws: WSClient, config:Configuration)(implicit wsExecu
 
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
-  private val letsEncryptRootUrl = config.getString("letsencrypt.root.url").get
-  private val letsEncryptRootPath = toPath(config.getString("letsencrypt.root.path").get)
-  private val certMap = Map(letsEncryptRootUrl -> letsEncryptRootPath)
-
-  def toPath(s:String) = {
-    FileSystems.getDefault().getPath(s)
+  private val certMap: Map[URL, Path] = {
+    import scala.collection.JavaConverters._
+    val letsEncryptRootCertificates = config.getObjectList("letsencrypt.root.certificates").get
+    letsEncryptRootCertificates.asScala.map { certObj: ConfigObject =>
+      val path = certObj.get("path").unwrapped().asInstanceOf[String]
+      val url = certObj.get("url").unwrapped().asInstanceOf[String]
+      new URL(url) -> toPath(path)
+    }.toMap
   }
 
-  def certificatesExist() = {
-    certMap.exists {
+  def toPath(s:String): Path = {
+    FileSystems.getDefault.getPath(s)
+  }
+
+  def allCertificatesExist(): Boolean = {
+    certMap.forall {
       case (k, v) =>
         certificateExists(v)
     }
@@ -48,9 +56,9 @@ class CertificateDownloader(ws: WSClient, config:Configuration)(implicit wsExecu
     }).map(_ => ())
   }
 
-  def downloadCertificate(certificateUrl: String, path: Path): Future[Path] = {
+  def downloadCertificate(certificateUrl: URL, path: Path): Future[Path] = {
     logger.info(s"downloadCertificate: certificateUrl = $certificateUrl")
-    val future = ws.url(certificateUrl).get().map { response =>
+    val future = ws.url(certificateUrl.toString).get().map { response =>
       response.status match {
         case 200 =>
           logger.info("Create file!")

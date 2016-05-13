@@ -9,3 +9,4 @@ target
 
 
 conf/dst-x3-root.pem
+conf/letsencrypt-authority-x1.pem

@@ -30,6 +30,7 @@ class LetsEncryptWSClient(lifecycle: ApplicationLifecycle,
       |      stores = [
       |        # Seems to be required for https://helloworld.letsencrypt.com
       |        { type = "PEM", path = "./conf/dst-x3-root.pem" }
+      |        { type = "PEM", path = "./conf/letsencrypt-authority-x1.pem" }
       |      ]
       |    }
       |  }
