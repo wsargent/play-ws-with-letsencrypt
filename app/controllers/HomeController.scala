@@ -3,23 +3,21 @@ package controllers
 import java.net.URL
 import javax.inject._
 
-import contexts._
-import play.api.libs.ws.ssl.CompositeCertificateException
+import com.typesafe.sslconfig.ssl.CompositeCertificateException
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import play.api.i18n.{I18nSupport, MessagesApi}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 case class UrlData(url: String)
 
 @Singleton
 class HomeController @Inject()(downloader: CertificateDownloader,
-                               lcWsClient: LetsEncryptWSClient)
-                              (implicit val messagesApi: MessagesApi,
-                               wsExecutionContext: WSExecutionContext) extends Controller with I18nSupport {
+                               lcWsClient: LetsEncryptWSClient,
+                               cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+                               extends MessagesAbstractController(cc) {
 
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
@@ -39,7 +37,7 @@ class HomeController @Inject()(downloader: CertificateDownloader,
 
   val defaultFormData = form.fill(UrlData("https://helloworld.letsencrypt.org/"))
 
-  def index = Action.async { implicit request =>
+  def index: Action[AnyContent] = Action.async { implicit request =>
     // Download the LC certificates if necessary
     val downloadFuture = if (downloader.allCertificatesExist()) {
       Future.successful(())
@@ -61,7 +59,7 @@ class HomeController @Inject()(downloader: CertificateDownloader,
     result
   }
 
-  private def formSuccess(url: URL)(implicit r: Request[_]): Future[Result] = {
+  private def formSuccess(url: URL)(implicit r: MessagesRequestHeader): Future[Result] = {
     lcWsClient.url(url.toExternalForm).head().map { response =>
       val message = s"Connection to ${url.toExternalForm} is ${response.statusText}"
       Redirect(routes.HomeController.index()).flashing("info" -> message)
@@ -81,7 +79,7 @@ class HomeController @Inject()(downloader: CertificateDownloader,
     }
   }
 
-  private def formFailure(formWithErrors: Form[UrlData])(implicit r: Request[_]): Future[Result] = {
+  private def formFailure(formWithErrors: Form[UrlData])(implicit r: MessagesRequestHeader): Future[Result] = {
     Future.successful {
       BadRequest(views.html.index(formWithErrors))
     }

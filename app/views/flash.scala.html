@@ -1,9 +1,9 @@
-@()(implicit flash: Flash)
+@()(implicit request: RequestHeader)
 
-@flash.get("info").map { info =>
+@request.flash.get("info").map { info =>
     <h2>@info</h2>
 }
 
-@flash.get("error").map { error =>
+@request.flash.get("error").map { error =>
     <h2>@error</h2>
 }

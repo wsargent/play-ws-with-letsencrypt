@@ -2,14 +2,11 @@ package controllers
 
 import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory
+import play.api.Environment
 import play.api.inject.ApplicationLifecycle
-import play.api.libs.ws.ahc.{AhcConfigBuilder, AhcWSClient, AhcWSClientConfig}
-import play.api.libs.ws.{WSClient, WSConfigParser, WSRequest}
-import play.api.{Configuration, Environment}
-
-import scala.concurrent.Future
-
-import contexts._
+import play.api.libs.ws.ahc.AhcWSClient
+import play.api.libs.ws.{WSClient, WSRequest}
+import play.libs.ws.ahc.AhcWSClientConfigFactory
 
 /**
  * A WS client set up with downloaded certificates.
@@ -18,7 +15,8 @@ import contexts._
  * and configured only after the certificates have been downloaded.
  */
 class LetsEncryptWSClient(lifecycle: ApplicationLifecycle,
-                          env: Environment)(implicit mat: Materializer, wsEc: WSExecutionContext) extends WSClient {
+                          env: Environment)
+                         (implicit mat: Materializer) extends WSClient {
 
   private val propsConfig = ConfigFactory.systemProperties()
 
@@ -38,13 +36,16 @@ class LetsEncryptWSClient(lifecycle: ApplicationLifecycle,
     """.stripMargin)))
 
   private lazy val client = {
-    val configuration = Configuration.reference ++ Configuration(wsConfig)
-    val parser = new WSConfigParser(configuration, env)
-    val config = new AhcWSClientConfig(wsClientConfig = parser.parse())
-    val builder = new AhcConfigBuilder(config)
-    val client = AhcWSClient(builder.build())
+    val config = AhcWSClientConfigFactory.forConfig(wsConfig, env.classLoader)
+    val client = AhcWSClient(config)
     lifecycle.addStopHook { () =>
-      Future(client.close())
+      import scala.concurrent._
+      import ExecutionContext.Implicits.global
+      Future {
+        blocking {
+          client.close()
+        }
+      }
     }
     client
   }

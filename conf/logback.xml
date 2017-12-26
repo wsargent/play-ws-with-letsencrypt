@@ -23,7 +23,7 @@
   <logger name="play" level="INFO" />
 
   <logger name="org.asynchttpclient" level="ERROR" />
-  <logger name="play.api.libs.ws.ssl" value="DEBUG"/>
+  <logger name="play.api.libs.ws.ssl" value="INFO"/>
 
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourselves -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />

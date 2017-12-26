@@ -3,12 +3,11 @@ package controllers
 import java.net.URL
 import java.nio.file.{FileSystems, Files, Path, StandardOpenOption}
 
-import com.typesafe.config.ConfigObject
-import contexts.WSExecutionContext
-import play.api.Configuration
+import com.typesafe.config.{Config, ConfigObject}
+import contexts.FileIOExecutionContext
 import play.api.libs.ws.WSClient
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 /**
@@ -20,14 +19,14 @@ import scala.util.control.NonFatal
  *
  * https://www.identrust.com/certificates/trustid/root-download-x3.html
  */
-class CertificateDownloader(ws: WSClient, config:Configuration)(implicit wsExecutionContext: WSExecutionContext) {
-  import contexts._
+class CertificateDownloader(ws: WSClient, config:Config, fileIOExecutionContext: FileIOExecutionContext) {
+  private implicit val ec: ExecutionContext = fileIOExecutionContext.underlying
 
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
   private val certMap: Map[URL, Path] = {
     import scala.collection.JavaConverters._
-    val letsEncryptRootCertificates = config.getObjectList("letsencrypt.root.certificates").get
+    val letsEncryptRootCertificates = config.getObjectList("letsencrypt.root.certificates")
     letsEncryptRootCertificates.asScala.map { certObj: ConfigObject =>
       val path = certObj.get("path").unwrapped().asInstanceOf[String]
       val url = certObj.get("url").unwrapped().asInstanceOf[String]
